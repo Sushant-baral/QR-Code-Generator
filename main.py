@@ -7,9 +7,9 @@ from PIL import ImageTk, Image
 class QRGeneratorApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("QR Code Generator")
+        self.root.title("QR Generator")
         self.root.resizable(False, False)
-        self.root.configure(bg="#1e1e2e")
+        self.root.configure(bg="#ffffff")
 
         self.qr_image = None
         self.raw_image = None
@@ -17,81 +17,129 @@ class QRGeneratorApp:
         self._bind_keyboard()
 
     def _build_ui(self):
-        # Title
-        tk.Label(
-            self.root, text="QR Code Generator",
-            bg="#1e1e2e", fg="#cdd6f4",
-            font=("Arial", 20, "bold")
-        ).pack(pady=(20, 5))
+        # Top bar
+        top_bar = tk.Frame(self.root, bg="#f7f7f5", height=50)
+        top_bar.pack(fill="x")
+        top_bar.pack_propagate(False)
 
         tk.Label(
-            self.root, text="Enter text or URL below",
-            bg="#1e1e2e", fg="#6e6e8e",
-            font=("Arial", 11)
-        ).pack()
+            top_bar, text="⬛ QR Generator",
+            bg="#f7f7f5", fg="#1a1a1a",
+            font=("Helvetica Neue", 13, "bold")
+        ).pack(side="left", padx=20, pady=12)
 
-        # Input box
+        tk.Label(
+            top_bar, text="by Sushant",
+            bg="#f7f7f5", fg="#a0a0a0",
+            font=("Helvetica Neue", 11)
+        ).pack(side="right", padx=20, pady=12)
+
+        # Divider
+        tk.Frame(self.root, bg="#e8e8e5", height=1).pack(fill="x")
+
+        # Main content
+        content = tk.Frame(self.root, bg="#ffffff")
+        content.pack(padx=40, pady=30)
+
+        # Heading
+        tk.Label(
+            content, text="Generate a QR Code",
+            bg="#ffffff", fg="#1a1a1a",
+            font=("Helvetica Neue", 22, "bold"),
+            anchor="w"
+        ).pack(fill="x", pady=(0, 4))
+
+        tk.Label(
+            content, text="Paste a URL, write text, anything.",
+            bg="#ffffff", fg="#a0a0a0",
+            font=("Helvetica Neue", 12),
+            anchor="w"
+        ).pack(fill="x", pady=(0, 20))
+
+        # Input label
+        tk.Label(
+            content, text="INPUT",
+            bg="#ffffff", fg="#a0a0a0",
+            font=("Helvetica Neue", 9, "bold"),
+            anchor="w"
+        ).pack(fill="x")
+
+        # Input box with border simulation
+        input_wrapper = tk.Frame(content, bg="#e8e8e5", padx=1, pady=1)
+        input_wrapper.pack(fill="x", pady=(4, 20))
+
         self.input_field = tk.Entry(
-            self.root, width=35,
-            font=("Arial", 14),
-            bg="#313149", fg="#cdd6f4",
-            insertbackground="#cdd6f4",
-            relief="flat", justify="center"
+            input_wrapper,
+            width=38,
+            font=("Helvetica Neue", 13),
+            bg="#fafafa",
+            fg="#1a1a1a",
+            insertbackground="#1a1a1a",
+            relief="flat",
         )
-        self.input_field.pack(pady=15, ipady=8, padx=20)
+        self.input_field.pack(ipady=10, padx=10)
         self.input_field.focus()
 
         # Buttons row
-        btn_frame = tk.Frame(self.root, bg="#1e1e2e")
-        btn_frame.pack(pady=(0, 15))
+        btn_frame = tk.Frame(content, bg="#ffffff")
+        btn_frame.pack(fill="x", pady=(0, 24))
 
         tk.Button(
-            btn_frame, text="Generate QR",
-            bg="#a6e3a1", fg="#1e1e2e",
-            font=("Arial", 13, "bold"),
+            btn_frame, text="Generate",
+            bg="#1a1a1a", fg="#ffffff",
+            font=("Helvetica Neue", 12, "bold"),
             relief="flat", cursor="hand2",
-            activebackground="#a6e3a1",
+            activebackground="#333333",
+            activeforeground="#ffffff",
             command=self._generate_qr,
-            width=14
-        ).grid(row=0, column=0, padx=5, ipady=8)
+            padx=20
+        ).pack(side="left", ipady=8, padx=(0, 8))
 
         tk.Button(
-            btn_frame, text="Save QR",
-            bg="#89b4fa", fg="#1e1e2e",
-            font=("Arial", 13, "bold"),
+            btn_frame, text="Save PNG",
+            bg="#f0f0ee", fg="#1a1a1a",
+            font=("Helvetica Neue", 12),
             relief="flat", cursor="hand2",
-            activebackground="#89b4fa",
+            activebackground="#e0e0de",
+            activeforeground="#1a1a1a",
             command=self._save_qr,
-            width=10
-        ).grid(row=0, column=1, padx=5, ipady=8)
+            padx=20
+        ).pack(side="left", ipady=8, padx=(0, 8))
 
         tk.Button(
             btn_frame, text="Clear",
-            bg="#f38ba8", fg="#1e1e2e",
-            font=("Arial", 13, "bold"),
+            bg="#f0f0ee", fg="#1a1a1a",
+            font=("Helvetica Neue", 12),
             relief="flat", cursor="hand2",
-            activebackground="#f38ba8",
+            activebackground="#e0e0de",
+            activeforeground="#1a1a1a",
             command=self._clear,
-            width=8
-        ).grid(row=0, column=2, padx=5, ipady=8)
+            padx=20
+        ).pack(side="left", ipady=8)
+
+        # Divider
+        tk.Frame(content, bg="#e8e8e5", height=1).pack(fill="x", pady=(0, 20))
 
         # QR display area
         self.qr_label = tk.Label(
-            self.root, bg="#1e1e2e",
-            text="Your QR code will appear here",
-            fg="#6e6e8e", font=("Arial", 11)
+            content,
+            bg="#ffffff",
+            text="↑  Enter something above and hit Generate",
+            fg="#c0c0c0",
+            font=("Helvetica Neue", 11),
+            padx=10,
+            pady=10
         )
-        self.qr_label.pack(pady=10)
+        self.qr_label.pack()
 
-        # Status label
+        # Status
         self.status_label = tk.Label(
-            self.root, text="",
-            bg="#1e1e2e", fg="#f38ba8",
-            font=("Arial", 10)
+            content, text="",
+            bg="#ffffff", fg="#a0a0a0",
+            font=("Helvetica Neue", 10),
+            anchor="w"
         )
-        self.status_label.pack()
-
-        tk.Label(self.root, bg="#1e1e2e").pack(pady=10)
+        self.status_label.pack(fill="x", pady=(12, 0))
 
     def _bind_keyboard(self):
         self.root.bind("<Return>", lambda e: self._generate_qr())
@@ -101,9 +149,7 @@ class QRGeneratorApp:
         text = self.input_field.get().strip()
 
         if not text:
-            self.status_label.config(
-                text=" Please enter some text or URL!", fg="#f38ba8"
-            )
+            self.status_label.config(text="⚠  Please enter some text or a URL.")
             return
 
         qr = qrcode.QRCode(
@@ -115,19 +161,17 @@ class QRGeneratorApp:
         qr.add_data(text)
         qr.make(fit=True)
 
-        img = qr.make_image(fill_color="#1e1e2e", back_color="white")
+        img = qr.make_image(fill_color="#1a1a1a", back_color="#ffffff")
         img = img.resize((250, 250), Image.LANCZOS)
 
         self.raw_image = img
         self.qr_image = ImageTk.PhotoImage(img)
         self.qr_label.config(image=self.qr_image, text="")
-        self.status_label.config(text=" QR code generated! Press Enter to regenerate.", fg="#a6e3a1")
+        self.status_label.config(text="✓  QR code ready — scan or save it.")
 
     def _save_qr(self):
         if self.raw_image is None:
-            self.status_label.config(
-                text=" Generate a QR code first!", fg="#f38ba8"
-            )
+            self.status_label.config(text="⚠  Generate a QR code first.")
             return
 
         file_path = filedialog.asksaveasfilename(
@@ -138,13 +182,14 @@ class QRGeneratorApp:
 
         if file_path:
             self.raw_image.save(file_path)
-            self.status_label.config(
-                text=f" Saved to {file_path}", fg="#a6e3a1"
-            )
+            self.status_label.config(text=f"✓  Saved to {file_path}")
 
     def _clear(self):
         self.input_field.delete(0, tk.END)
-        self.qr_label.config(image="", text="Your QR code will appear here")
+        self.qr_label.config(
+            image="",
+            text="↑  Enter something above and hit Generate"
+        )
         self.qr_image = None
         self.raw_image = None
         self.status_label.config(text="")
